@@ -1,4 +1,4 @@
-package com.example.kotlinbookshelfapiapp.model
+package com.example.kotlinbookshelfapiapp.data.model
 
 data class BookModel(
     val id: String,

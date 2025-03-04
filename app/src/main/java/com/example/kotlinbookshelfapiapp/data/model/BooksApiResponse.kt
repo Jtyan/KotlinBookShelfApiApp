@@ -1,6 +1,6 @@
-package com.example.kotlinbookshelfapiapp.model
+package com.example.kotlinbookshelfapiapp.data.model
 
-data class BookApiResponse(
+data class BooksApiResponse(
     val kind: String,
     val totalItems: String,
     val items: List<BookVolume>
