@@ -1,28 +1,43 @@
 package com.example.kotlinbookshelfapiapp.data.container
 
+import android.util.Log
 import com.example.kotlinbookshelfapiapp.data.network.BooksApiService
 import com.example.kotlinbookshelfapiapp.data.repository.BooksRepository
 import com.example.kotlinbookshelfapiapp.data.repository.BooksRepositoryImpl
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
+import retrofit2.converter.gson.GsonConverterFactory
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.create
 
 interface AppContainer {
     val booksRepository: BooksRepository
 }
 
 class DefaultAppContainer: AppContainer {
-    private val baseUrl = "https://www.googleapis.com/books/v1"
+    private val baseUrl = "https://www.googleapis.com/books/v1/"
 
-    private val retrofit: Retrofit = Retrofit.Builder()
-        .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        setLevel(HttpLoggingInterceptor.Level.BODY)
+    }
+
+    //logging
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(loggingInterceptor)
+        .build()
+
+    val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     private val retrofitService: BooksApiService by lazy {
-        retrofit.create(BooksApiService::class.java)
+        try {
+            retrofit.create(BooksApiService::class.java)
+        } catch (e: Exception) {
+            Log.e("GeneralException", "Error creating API service: ${e.message}", e)
+            throw e
+        }
     }
 
     override val booksRepository : BooksRepository by lazy {
