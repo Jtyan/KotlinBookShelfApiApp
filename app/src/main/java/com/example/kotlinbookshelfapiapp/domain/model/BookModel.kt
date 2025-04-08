@@ -7,6 +7,7 @@ data class BookModel(
     val title: String,
     val authors: List<String>,
     val publishedDate: String,
+    val description: String,
     val categories: List<String>,
     val pageCount: Int,
     val image: ImageLinks
