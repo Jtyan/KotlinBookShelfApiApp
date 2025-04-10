@@ -21,7 +21,13 @@ sealed interface BooksUiState {
     data class Success(val books: List<BookModel>) : BooksUiState
     data class Error(val message: String) : BooksUiState
     object Loading : BooksUiState
+}
 
+// New state for book details
+sealed interface BookDetailsState {
+    data class Success(val book: BookModel) : BookDetailsState
+    data class Error(val message: String) : BookDetailsState
+    object Loading : BookDetailsState
 }
 
 class BooksViewModel(
@@ -30,8 +36,25 @@ class BooksViewModel(
     var booksUiState: BooksUiState by mutableStateOf(BooksUiState.Loading)
         private set
 
+    var bookDetailsState: BookDetailsState by mutableStateOf(BookDetailsState.Loading)
+        private set
+
+    var fictionBooksState: BooksUiState by mutableStateOf(BooksUiState.Loading)
+        private set
+
+    var thrillerBooksState: BooksUiState by mutableStateOf(BooksUiState.Loading)
+        private set
+
+    var biographyBooksState: BooksUiState by mutableStateOf(BooksUiState.Loading)
+        private set
+
+    var popularBooksState: BooksUiState by mutableStateOf(BooksUiState.Loading)
+        private set
+
+    val searchSuggestions = listOf("Science Fiction", "Cooking", "Programming", "History", "Crime")
+
     init {
-       searchBooks("Colors")
+       searchBooks("")
     }
 
     fun searchBooks(query: String) {
@@ -52,8 +75,59 @@ class BooksViewModel(
         }
     }
 
-    fun retryAction(query: String = "Colors") {
-        searchBooks(query)
+    fun getBookDetails(volumeId: String) {
+        viewModelScope.launch {
+            bookDetailsState = BookDetailsState.Loading
+            bookDetailsState = try {
+                BookDetailsState.Success(booksRepository.getBookById(volumeId))
+            } catch (e: Exception) {
+                BookDetailsState.Error("Error loading book details: ${e.message}")
+            }
+        }
+    }
+
+    fun getFictionBooks() {
+        viewModelScope.launch {
+            fictionBooksState = BooksUiState.Loading
+            fictionBooksState = try {
+                BooksUiState.Success(booksRepository.getFictionBooks().toBookModels())
+            } catch (e: Exception) {
+                BooksUiState.Error("Error loading fiction books: ${e.message}")
+            }
+        }
+    }
+
+    fun getThrillerBooks() {
+        viewModelScope.launch {
+            thrillerBooksState = BooksUiState.Loading
+            thrillerBooksState = try {
+                BooksUiState.Success(booksRepository.getThrillerBooks().toBookModels())
+            } catch (e: Exception) {
+                BooksUiState.Error("Error loading fantasy books: ${e.message}")
+            }
+        }
+    }
+
+    fun getBiographyBooks() {
+        viewModelScope.launch {
+            biographyBooksState = BooksUiState.Loading
+            biographyBooksState = try {
+                BooksUiState.Success(booksRepository.getBiographyBooks().toBookModels())
+            } catch (e: Exception) {
+                BooksUiState.Error("Error loading biography books: ${e.message}")
+            }
+        }
+    }
+
+    fun getPopularBooks() {
+        viewModelScope.launch {
+            popularBooksState = BooksUiState.Loading
+            popularBooksState = try {
+                BooksUiState.Success(booksRepository.getPopularBooks().toBookModels())
+            } catch (e: Exception) {
+                BooksUiState.Error("Error loading popular books: ${e.message}")
+            }
+        }
     }
 
     companion object {
@@ -65,6 +139,4 @@ class BooksViewModel(
             }
         }
     }
-
-
 }
