@@ -65,6 +65,16 @@ fun BookShelfApp() {
                         onBackClick = { navController.navigateUp() }
                     )
                 }
+                composable("search") {
+                    SearchScreen(
+                        onSearch = { query ->
+                            booksViewModel.searchBooks(query)
+                            navController.popBackStack()
+                        },
+                        onBackClick = { navController.navigateUp() },
+                        searchSuggestions = booksViewModel.searchSuggestions
+                    )
+                }
             }
         }
     }
